@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.0.1
+Version: 1.1.0
 Author: Alexandre Plennevaux
 Author URI: http://www.pixeline.be
 */
@@ -61,7 +61,7 @@ if (!class_exists('ap_issuupress')) {
 			//*/
 			$this->pluginPath   =  dirname(__FILE__);
 			$this->pluginUrl   =  WP_PLUGIN_URL . '/'.basename($this->pluginPath);
-			$this->pluginVersion= '1.0.1';
+			$this->pluginVersion= '1.1.0';
 			$this->pluginId = 'issuupress';
 
 
@@ -114,56 +114,11 @@ if (!class_exists('ap_issuupress')) {
 		function shortcode($atts){
 			ob_start();
 			if(!is_admin()){
-				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'yes'), $atts));
+				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','height'=>'480', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
 
 				$this->filterByTag = $tag;
 
 				$docs = $this->listDocs();
-				/*
-
-				[totalCount] => 14
- 				[startIndex] => 0
-				[pageSize] => 30
-				[more] =>
-				[_content]
-				[document] => stdClass Object
-                        (
-                            [username] => essentielle
-                            [name] => lle_immo_93ok
-                            [documentId] => 120116085245-f5449714d91948269c51c7a76d26d65e
-                            [title] => La Libre Essentielle IMMO
-                            [access] => public
-                            [state] => A
-                            [category] => 003000
-                            [type] => 005000
-                            [orgDocType] => pdf
-                            [orgDocName] => LLE_IMMO_93.pdf
-                            [infoLink] => http://www.essentielle.be
-                            [downloadable] => 1
-                            [origin] => singleupload
-                            [pro] => F
-                            [language] => fr
-                            [rating] => 0
-                            [ratingsAllowed] => 1
-                            [commentCount] => 0
-                            [commentsAllowed] => 1
-                            [bookmarkCount] => 0
-                            [viewCount] => 88
-                            [pageCount] => 96
-                            [dcla] => 2|a|96|a4|p|666|949|0|0
-                            [ep] => 1326668400
-                            [publishDate] => 2012-01-15T23:00:00.000Z
-                            [description] => Le magazine IMMO de La Libre Essentielle
-                            [tags] => Array
-                                (
-                                    [0] => essentielle
-                                    [1] => immo
-                                    [2] => la libre essentielle
-                                )
-
-                        )
-
-			*/
 
 				if($_GET['documentId'] != '') {
 					$docId = $_GET['documentId'];
@@ -189,12 +144,12 @@ if (!class_exists('ap_issuupress')) {
 				// display viewer, send it options in array
 
 				if($viewer!=='no'){
-					$output .= $this->issuuViewer(array('documentId'=> $docId, 'title'=>$docTitle));
+					$output .= $this->issuuViewer(array('documentId'=> $docId, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
 				}
 
 
 				// loop through the issuus files and display them.
-				$output .= '<h3>Archives</h3>';
+				$output .= '<h3>'.$ctitle.'</h3>';
 				$output .='<ol class="issuu-list">';
 				foreach($docs->_content as $d){
 
@@ -234,18 +189,20 @@ if (!class_exists('ap_issuupress')) {
 
 		private function issuuViewer($args){
 			$options['documentId']= $args['documentId'];
-			$options['backgroundColor']='FFFFFF';
-			$options['mode']= 'mini'; // 'mini', 'Presentation' or 'window'
-			$options['height']= '640';
+			$options['bgcolor']=$args['bgcolor'];
+			$options['mode']= $args['viewer']; // 'mini', 'Presentation' or 'window'
+			$options['height']=$args['height'];
 			$options['title']= $args['title'];
+			$options['titlebar']= $args['titlebar'];
+			$options['vmode']= ($args['vmode']=='single') ? 'singlePage':'';
 			$output= '<h3>'.$options['title'].'</h3>
 			<div id="issuuViewer">
 				<object style="width:100%;height:'.$options['height'].'px" >
-				<param name="movie" value="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf?mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['backgroundColor'].'&amp;documentId='.$options['documentId'].'" />
+				<param name="movie" value="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf?mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;titleBarEnabled='.$options['titlebar'].'&amp;documentId='.$options['documentId'].'" />
 				<param name="allowfullscreen" value="true"/>
 				<param name="menu" value="false"/>
 				<param name="wmode" value="transparent"/>
-				<embed src="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['backgroundColor'].'&amp;documentId='.$options['documentId'].'" />
+				<embed src="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;documentId='.$options['documentId'].'&amp;titleBarEnabled='.$options['titlebar'].'" />
 				</object>
 				</div>';
 
@@ -326,9 +283,22 @@ if (!class_exists('ap_issuupress')) {
 				$this->options['ap_issuupress_apisecret'] = $_POST['ap_issuupress_apisecret'];
 				$this->options['ap_issuupress_cacheDuration'] = (int)$_POST['ap_issuupress_cacheDuration'];
 
+				if($_POST['ap_issuupress_refresh_now']==='1'){
+					require_once('issuuAPI.php');
+					$issuuAPI = new issuuAPI(array('apiKey'=>$this->apiKey,'apiSecret'=>$this->apiSecret, 'cacheDuration'=>$this->cacheDuration));
+					if (is_file($issuuAPI->issuuCacheFile)){
+						$deleteCache = @unlink($issuuAPI->issuuCacheFile);
+						echo ($deleteCache) ? '<div class="updated"><p>'._('Success! Cache file deleted.').'</p></div>': '<div class="updated"><p>'._('Error! Could not delete the cache file!'). '('.$issuuAPI->issuuCacheFile.')</p></div>';
+					}else{
+						echo '<div class="updated"><p>'._('No cache file found.').'</p></div>';
+					}
+
+				}
+
+
 				$this->saveAdminOptions();
 
-				echo '<div class="updated"><p>Success! Your changes were sucessfully saved!</p></div>';
+				echo '<div class="updated"><p>'._('Success! Your changes were sucessfully saved.').'</p></div>';
 			}
 ?>
 			<div class="wrap">
@@ -364,13 +334,28 @@ if (!class_exists('ap_issuupress')) {
 							<br><small><?php _e('Tip: 1 day = 86400 sec. , 1 hour = 3600 sec.', $this->localizationDomain); ?></small>
 						</td>
 					</tr>
-
+<tr valign="top">
+						<th width="33%" scope="row"><?php _e('Refresh the cache now? ', $this->localizationDomain); ?></th>
+						<td>
+							<label>
+							<input name="ap_issuupress_refresh_now" type="checkbox" id="ap_issuupress_refresh_now" value="1"/>
+							<br><small><?php _e('Check this option to download a fresh copy of your Issuu catalog.', $this->localizationDomain); ?></small></label>
+						</td>
+					</tr>
 
 				</table>
 				<p class="submit">
 					<input type="submit" name="ap_issuupress_save" class="button-primary" value="<?php _e('Save Changes', $this->localizationDomain); ?>" />
 				</p>
 			</form>
+			<form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_donations" />
+<input type="hidden" name="business" value="J9X5B6JUVPBHN" />
+<input type="hidden" name="lc" value="US" />
+<input type="hidden" name="item_name" value="pixeline - Wordpress plugin: Issuupress" />
+<input type="hidden" name="currency_code" value="EUR" />
+<input type="hidden" name="bn" value="PP-DonationsBF:btn_donate_SM.gif:NonHostedGuest" />
+<input type="image" name="submit" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="PayPal - The safer, easier way to pay online!" />
+<img src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" alt="" width="1" height="1" border="0" /></form>
 			<?php
 		}
 	} //End Class
