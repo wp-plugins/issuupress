@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.0.0
+Version: 1.0.1
 Author: Alexandre Plennevaux
 Author URI: http://www.pixeline.be
 */
@@ -61,7 +61,7 @@ if (!class_exists('ap_issuupress')) {
 			//*/
 			$this->pluginPath   =  dirname(__FILE__);
 			$this->pluginUrl   =  WP_PLUGIN_URL . '/'.basename($this->pluginPath);
-			$this->pluginVersion= '1.0';
+			$this->pluginVersion= '1.0.1';
 			$this->pluginId = 'issuupress';
 
 

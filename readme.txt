@@ -36,6 +36,7 @@ Then go to the IssuuPress Settings, enter your API key and API secret, set the c
 
 == Changelog ==
 
+1.1. Fixed a lot of bugs. Sorry about that.
 1. Initial release.
 
 == Screenshots ==
