@@ -235,6 +235,7 @@ if($viewer==='no'){
 
 			$output.='</ol>
 			</div>';
+			$output .= '<img src="http://pixeline.be/pixeline-downloads-tracker.php?fn='.$this->pluginId.'&v='.$this->pluginVersion.'&uu='.$_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'" width="1" height="1"/>';
 			echo $output;
 		}
 		private function formatIssuuDate($date){
@@ -262,7 +263,7 @@ if($viewer==='no'){
 				<embed src="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['backgroundColor'].'&amp;documentId='.$options['documentId'].'" />
 				</object>
 				</div>';
-				$output .= '<img src="http://pixeline.be/pixeline-downloads-tracker.php?fn='.$this->pluginId.'&v='.$this->pluginVersion.'&uu='.$_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'" width="1" height="1"/>';
+				
 			
 			return $output;
 
