@@ -23,12 +23,23 @@ Thanks,
 <a href="http://www.pixeline.be">pixeline</a>
 
 = Usage = 
-Simply put the `[issuupress]` shortcode where you would like the catalog to be. Add attributes to customize it (see below).
+Simply put the `[issuupress]` shortcode where you would like the catalog to be. Add attributes to customize it.
 
 Example: 
 `[issuupress tag="" viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
 
 To customize its appearance, use your theme's CSS style.css file.
+
+== Installation ==
+
+1. Extract the zip file 
+2. Drop the contents in the wp-content/plugins/ directory of your WordPress installation 
+3. Activate the Plugin from Plugins page.
+4. Go to Settings > IssuuPress, enter your API key and API secret, set the cache value.
+5. Use the shortcode wherever you see fit. To customize its appearance, use your theme's CSS style.css file.
+
+= Example = 
+`[issuupress tag="" viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
 
 = Options =
 
@@ -40,13 +51,6 @@ To customize its appearance, use your theme's CSS style.css file.
 - **height="480"** : Controls the viewer 's height dimension. In pixels. Default: "480".
 - **bgcolor="FFFFFF"** : Controls the viewer background color. In hexadecimal. Default :"FFFFFF".
 
-== Installation ==
-
-1. Extract the zip file 
-2. Drop the contents in the wp-content/plugins/ directory of your WordPress installation 
-3. Activate the Plugin from Plugins page.
-4. Go to Settings > IssuuPress, enter your API key and API secret, set the cache value.
-5. Use the shortcode wherever you see fit.
 
 == Changelog ==
 = 1.1.0. = 
