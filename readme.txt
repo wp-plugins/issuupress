@@ -19,7 +19,7 @@ You can optionally restrict the list by tag.
 
 You will need credentials to access the issuu API: login to issuu and access <a href="http://issuu.com/services/api/" target="_blank" title="issuu api">http://issuu.com/services/api/</a> to find your own API key and key secret.
 
-Please rate the plugin if you like it.
+Please <a href="http://wordpress.org/extend/plugins/issuupress/">rate the plugin</a> if you like it.
 <a href="http://www.pixeline.be">pixeline</a>
 
 = Usage = 
