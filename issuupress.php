@@ -203,6 +203,7 @@ if (!class_exists('ap_issuupress')) {
 						$dId = $d->document->documentId;
 						$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
 						$doc_link = add_query_arg( 'title', urlencode($d->document->title), $doc_link);
+						$doc_link.='#issuupress';
 						$selected = ($dId == $docId) ? 'class="issuu-selected"':'';
 						if($viewer==='no'){
 							$doc_link = $issuu_link;
