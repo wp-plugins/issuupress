@@ -31,13 +31,14 @@ Example:
 To customize its appearance, use your theme's CSS style.css file.
 
 = Options =
-**tag=""** :  If you want, you can restrict the list to only pdf with the provided tag. Default: ""
-**viewer="mini"** : Possible values: "no","mini","presentation" or "window". Default: "mini".
-**titlebar="false"** : Displays the PDF's titlebar. Possible values: "true", "false". Default: "false".
-**vmode=""** : Displays pages next to each other, or underneath each other ("single"). Possible values: "single", "". Default: "".
-**ctitle=""** : Title to print on top of the list of pdf files. Default: "Pick a PDF file to read"
-**height="480"** : Controls the viewer 's height dimension. In pixels. Default: "480".
-**bgcolor="FFFFFF"** : Controls the viewer background color. In hexadecimal. Default :"FFFFFF".
+
+- **tag=""** :  If you want, you can restrict the list to only pdf with the provided tag. Default: ""
+- **viewer="mini"** : Possible values: "no","mini","presentation" or "window". Default: "mini".
+- **titlebar="false"** : Displays the PDF's titlebar. Possible values: "true", "false". Default: "false".
+- **vmode=""** : Displays pages next to each other, or underneath each other ("single"). Possible values: "single", "". Default: "".
+- **ctitle=""** : Title to print on top of the list of pdf files. Default: "Pick a PDF file to read"
+- **height="480"** : Controls the viewer 's height dimension. In pixels. Default: "480".
+- **bgcolor="FFFFFF"** : Controls the viewer background color. In hexadecimal. Default :"FFFFFF".
 
 == Installation ==
 
