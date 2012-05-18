@@ -32,24 +32,11 @@ if (!class_exists('ap_issuupress')) {
 		var $apiSecret;
 		var $filterByTag;
 		var $cacheDuration;
-
-
-		/**
-		 * @var array $options Stores the options for this plugin
-		 */
 		var $options = array();
-		/**
-		 * @var string $localizationDomain Domain used for localization
-		 */
 		var $localizationDomain = "ap_issuupress";
 
-		/**
-		 * @var string $url The url to this plugin
-		 */
 		var $url = '';
-		/**
-		 * @var string $urlpath The path to this plugin
-		 */
+
 		var $urlpath = '';
 
 		//Class Functions
@@ -92,12 +79,15 @@ if (!class_exists('ap_issuupress')) {
 			add_filter('the_posts', array(&$this,'scripts_and_styles'));
 
 			//Actions
-			//add_action("init", array(&$this,"ap_issuupress_init"));
+			add_action("init", array(&$this,"ap_issuupress_init"));
 		}
 
-		function listDocs($filter){
+		function ap_issuupress_init(){
+		}
 
-			include 'issuuAPI.php';
+		function listDocs(){
+
+			require_once('issuuAPI.php');
 
 			$issuuAPI = new issuuAPI(array('apiKey'=>$this->apiKey,'apiSecret'=>$this->apiSecret, 'cacheDuration'=>$this->cacheDuration));
 			$docs = $issuuAPI->getListing();
@@ -114,31 +104,22 @@ if (!class_exists('ap_issuupress')) {
 			if (!$theOptions = get_option($this->optionsName)) {
 				$theOptions = array('ap_issuupress_apikey'=> '', 'ap_issuupress_apisecret' => '', 'ap_issuupress_cacheDuration'=>86400);
 				update_option($this->optionsName, $theOptions);
-				
+
 			}
 			$this->options = $theOptions;
 			$this->cacheDuration = $this->options['ap_issuupress_cacheDuration'];
 		}
 
-		public function loop($obj, $key = null)
-		{
-			if (is_object($obj)) {
-				foreach ($obj as $x => $value) {
-					loop($value, $x);
-				}
-			} else {
-				echo "Key: $key, value: $obj";
-			}
-		}
 
-		public function shortcode($atts){
+		function shortcode($atts){
+			ob_start();
+			if(!is_admin()){
+				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'yes'), $atts));
 
-			extract(shortcode_atts(array('tag'=>'', 'viewer'=>'yes'), $atts));
+				$this->filterByTag = $tag;
 
-			$this->filterByTag = $tag;
-
-			$docs = $this->listDocs();
-			/*
+				$docs = $this->listDocs();
+				/*
 
 				[totalCount] => 14
  				[startIndex] => 0
@@ -184,70 +165,73 @@ if (!class_exists('ap_issuupress')) {
 
 			*/
 
-			if($_GET['documentId'] != '') {
-				$docId = $_GET['documentId'];
-				$docTitle= $_GET['title'];
-			}else{
-				if($this->filterByTag !=''){
-					foreach($docs->_content as $d){
-						if(in_array($this->filterByTag, $d->document->tags)){
-							$docId =  $d->document->documentId;
-							$docTitle =  $d->document->title;
-							break;
-						}
-					}
+				if($_GET['documentId'] != '') {
+					$docId = $_GET['documentId'];
+					$docTitle= $_GET['title'];
 				}else{
-					$docId = $docs->_content[0]->document->documentId;
-					$docTitle = $docs->_content[0]->document->title;
-				}
-
-			}
-			$output = '<div id="issuupress">';
-			
-			
-			// display viewer, send it options in array
-			
-			if($viewer!=='no'){
-				$output .= $this->issuuViewer(array('documentId'=> $docId, 'title'=>$docTitle));
-			}
-			
-
-			// loop through the issuus files and display them.
-			$output .= '<h3>Archives</h3>';
-			$output .='<ol class="issuu-list">';
-			foreach($docs->_content as $d){
-
-				if(in_array($this->filterByTag, $d->document->tags)){
-					$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
-					$dId = $d->document->documentId;
-					$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
-					$doc_link = add_query_arg( 'title', urlencode($d->document->title), $doc_link);
-					$selected = ($dId == $docId) ? 'class="issuu-selected"':'';
-if($viewer==='no'){
-	$doc_link = $issuu_link;
-	$link_target= 'target="_blank"';
-}
-					$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'</a> <small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
-
+					if($this->filterByTag !=''){
+						foreach($docs->_content as $d){
+							if(in_array($this->filterByTag, $d->document->tags)){
+								$docId =  $d->document->documentId;
+								$docTitle =  $d->document->title;
+								break;
+							}
+						}
+					}else{
+						$docId = $docs->_content[0]->document->documentId;
+						$docTitle = $docs->_content[0]->document->title;
+					}
 
 				}
-			}
+				$output = '<div id="issuupress">';
 
-			$output.='</ol>
+
+				// display viewer, send it options in array
+
+				if($viewer!=='no'){
+					$output .= $this->issuuViewer(array('documentId'=> $docId, 'title'=>$docTitle));
+				}
+
+
+				// loop through the issuus files and display them.
+				$output .= '<h3>Archives</h3>';
+				$output .='<ol class="issuu-list">';
+				foreach($docs->_content as $d){
+
+					if((is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags)) || is_string($this->filterByTag)){
+						$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
+						$dId = $d->document->documentId;
+						$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
+						$doc_link = add_query_arg( 'title', urlencode($d->document->title), $doc_link);
+						$selected = ($dId == $docId) ? 'class="issuu-selected"':'';
+						if($viewer==='no'){
+							$doc_link = $issuu_link;
+							$link_target= 'target="_blank"';
+						}
+						$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'</a> <small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+
+
+					}
+				}
+
+				$output.='</ol>
 			</div>';
-			$output .= '<img src="http://pixeline.be/pixeline-downloads-tracker.php?fn='.$this->pluginId.'&v='.$this->pluginVersion.'&uu='.$_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'" width="1" height="1"/>';
-			echo $output;
+				$output .= '<img src="http://pixeline.be/pixeline-downloads-tracker.php?fn='.$this->pluginId.'&v='.$this->pluginVersion.'&uu='.$_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'" width="1" height="1"/>';
+				echo $output;
+
+			}
+			$output_string = ob_get_contents();
+
+			ob_end_clean();
+
+			return $output_string;
+
 		}
 		private function formatIssuuDate($date){
-			/*
-	$date= explode('T', $date);
-	$date = $date[0];
-*/
 			return date('d M Y',strtotime($date));
-
 		}
 
-		public function issuuViewer($args){
+		private function issuuViewer($args){
 			$options['documentId']= $args['documentId'];
 			$options['backgroundColor']='FFFFFF';
 			$options['mode']= 'mini'; // 'mini', 'Presentation' or 'window'
@@ -263,8 +247,8 @@ if($viewer==='no'){
 				<embed src="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['backgroundColor'].'&amp;documentId='.$options['documentId'].'" />
 				</object>
 				</div>';
-				
-			
+
+
 			return $output;
 
 		}
@@ -296,17 +280,6 @@ if($viewer==='no'){
 
 			return $posts;
 		}
-
-
-		public function useCache(){
-			if(!is_file($this->issuuDocumentsListCache)){
-
-
-			}
-
-		}
-
-
 
 
 		/*
@@ -361,7 +334,7 @@ if($viewer==='no'){
 			<h1><?php _e('IssuuPress Settings', $this->localizationDomain);?></h1>
 			<p><?php _e('by <a href="http://www.pixeline.be" target="_blank" class="external">pixeline</a>', $this->localizationDomain); ?></p>
 			<p style="font-weight:bold;"><?php _e('If you like this plugin, please <a href="http://wordpress.org/extend/plugins/issuupress/" target="_blank">give it a good rating</a> on the Wordpress Plugins repository, and if you make any money out of it, <a title="Paypal donation page" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=J9X5B6JUVPBHN&lc=US&item_name=pixeline%20%2d%20Wordpress%20plugin&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHostedGuest">send a few coins over to me</a>!', $this->localizationDomain); ?></p>
-			
+
 			<h2 style="border-top:1px solid #999;padding-top:1em;"><?php _e('Settings', $this->localizationDomain);?></h2>
 			<p><?php _e('In order to fetch the list of your documents from your Issuu account, you need to provide your API credentials. Get them <a href="http://issuu.com/services/api/" target="_blank">here</a>.', $this->localizationDomain); ?>
 			</p>
@@ -382,7 +355,7 @@ if($viewer==='no'){
 
 						</td>
 					</tr>
-					
+
 					<tr valign="top">
 						<th width="33%" scope="row"><?php _e('Refresh cache every (in seconds):', $this->localizationDomain); ?></th>
 						<td>
@@ -390,8 +363,8 @@ if($viewer==='no'){
 							<br><small><?php _e('Tip: 1 day = 86400 sec. , 1 hour = 3600 sec.', $this->localizationDomain); ?></small>
 						</td>
 					</tr>
-					
-					
+
+
 				</table>
 				<p class="submit">
 					<input type="submit" name="ap_issuupress_save" class="button-primary" value="<?php _e('Save Changes', $this->localizationDomain); ?>" />
