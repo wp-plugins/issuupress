@@ -92,7 +92,7 @@ if (!class_exists('ap_issuupress')) {
 			add_filter('the_posts', array(&$this,'scripts_and_styles'));
 
 			//Actions
-			add_action("init", array(&$this,"ap_issuupress_init"));
+			//add_action("init", array(&$this,"ap_issuupress_init"));
 		}
 
 		function listDocs($filter){
