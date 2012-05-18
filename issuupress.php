@@ -114,7 +114,7 @@ if (!class_exists('ap_issuupress')) {
 		function shortcode($atts){
 			ob_start();
 			if(!is_admin()){
-				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','height'=>'480', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
+				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
 
 				$this->filterByTag = $tag;
 
@@ -356,6 +356,22 @@ if (!class_exists('ap_issuupress')) {
 <input type="hidden" name="bn" value="PP-DonationsBF:btn_donate_SM.gif:NonHostedGuest" />
 <input type="image" name="submit" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="PayPal - The safer, easier way to pay online!" />
 <img src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" alt="" width="1" height="1" border="0" /></form>
+<div class="issuupress-block">
+<h2 style="border-top:1px solid #999;padding-top:1em;">Usage</h2>
+<h3>Example</h3>
+<code>[issuupress tag="" viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="240" bgcolor="FFFFFF"]</code>
+<h3>Options</h3>
+<ul>
+	<li><strong>tag=""</strong> :  If you want, you can restrict the list to only pdf with the provided tag. <em>Default: "".</em></li>
+	<li><strong>viewer="mini"</strong> : Possible values: "no","mini","presentation" or "window". <em>Default: "mini".</em></li>
+	<li><strong>titlebar="false"</strong> : Displays the PDF's titlebar. Possible values: "true", "false". <em>Default: "false".</em></li>
+	<li><strong>vmode=""</strong> : Displays pages next to each other, or underneath each other ("single"). Possible values: "single", "". <em>Default: "".</em></li>
+	<li><strong>ctitle=""</strong> : Title to print on top of the list of pdf files. <em>Default: "Pick a PDF file to read"</em></li>
+	<li><strong>height="240"</strong> : Controls the viewer 's height dimension. In pixels. <em>Default: "240".</em></li>
+	<li><strong>bgcolor="FFFFFF"</strong> : Controls the viewer background color. In hexadecimal. <em>Default :"FFFFFF".</em></li>
+</ul>
+
+</div>
 			<?php
 		}
 	} //End Class
