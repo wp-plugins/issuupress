@@ -1,0 +1,20 @@
+#issuupress h2, #issuupress h3{font-size:180%;}
+#issuupress ol.issuu-list li{
+	line-height:2em;
+	list-style: square;
+	border:1px solid white;
+}
+#issuupress li a.issuu-view{
+	color:#666;
+	text-decoration:underline;
+	margin-left:1em;
+}
+#issuupress li.issuu-selected,
+#issuupress li:hover{border:1px solid #999;background:#F3F3F3;}
+#issuupress li.issuu-selected a.issuu-view,
+#issuupress li.issuu-selected a.issuu-view:visited,
+#issuupress li:hover a{
+	color:#999;
+	text-decoration:none;
+	
+}
