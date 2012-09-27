@@ -53,6 +53,9 @@ To customize its appearance, use your theme's CSS style.css file.
 
 
 == Changelog ==
+= 1.1.1. =
+- Fixed the tag not actually filtering anything (duh!).
+
 = 1.1.0. = 
 - Added many additional attributes to the shortcode to allow you to customize the viewer
 - Added admin option to manually refresh the cache.
