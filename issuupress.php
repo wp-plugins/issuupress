@@ -179,10 +179,10 @@ if (!class_exists('ap_issuupress')) {
 							$link_target= 'target="_blank"';
 						}
 						if($img !='false'){
-							$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.implode(',',$d->document->tags). ' '.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+							$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
 						}else
 						{
-							$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.implode(',',$d->document->tags). ' '.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
+							$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
 
 						}
 					}
