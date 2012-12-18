@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.2.0
+Version: 1.2.1
 Author: Alexandre Plennevaux
 Author URI: http://www.pixeline.be
 */
@@ -106,10 +106,10 @@ if (!class_exists('ap_issuupress')) {
 			$theOptions = array('ap_issuupress_apikey'=> '', 'ap_issuupress_apisecret' => '', 'ap_issuupress_cacheDuration'=>86400,'no_pdf_message'=>'No PDF available, sorry!');
 			$storedOptions = get_option($this->optionsName);
 			if (count($storedOptions)!=count($theOptions)) {
-				$theOptions=  array_merge($theOptions,$storedOptions);
-				update_option($this->optionsName,$theOptions);
+				$storedOptions=  array_merge($theOptions,$storedOptions);
+				update_option($this->optionsName,$storedOptions);
 			}
-			$this->options = $theOptions;
+			$this->options = $storedOptions;
 			$this->cacheDuration = $this->options['ap_issuupress_cacheDuration'];
 		}
 
@@ -117,7 +117,7 @@ if (!class_exists('ap_issuupress')) {
 		function shortcode($atts){
 			ob_start();
 			if(!is_admin()){
-				$this->getOptions();
+			
 				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','img'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
 
 				$this->filterByTag = $tag;
@@ -156,9 +156,17 @@ if (!class_exists('ap_issuupress')) {
 				// loop through the issuus files and display them.
 				$output .= '<h3>'.$ctitle.'</h3>';
 				$output .='<ol class="issuu-list">';
+				$count = 0;
 				foreach($docs->_content as $d){
-					$count = 0;
-					if((is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags)) || (trim($this->filterByTag)=='')){
+					
+					
+					$isInTags = (is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags));
+					$wantItAll = (trim($this->filterByTag)==='');
+					
+					if($isInTags || $wantItAll){
+						//$output.=  "want it all = $wantItAll & isInTags=$isInTags";
+						//$output .= "tags =" .print_r($d->document->tags,true);
+						
 						$count++;
 						$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
 						$dId = $d->document->documentId;
@@ -171,19 +179,15 @@ if (!class_exists('ap_issuupress')) {
 							$link_target= 'target="_blank"';
 						}
 						if($img !='false'){
-							$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a></li>';
+							$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.implode(',',$d->document->tags). ' '.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
 						}else
 						{
-							$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'</a> <small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+							$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.implode(',',$d->document->tags). ' '.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
 
 						}
-						
-
-
-
 					}
 				}
-				$output.= ($count===0)? '<p class="issuupress-no-pdf-message">'.$this->no_pdf_message.'</p>': '';
+				$output.= ($count<1)? '<p class="issuupress-no-pdf-message">'.$this->filterByTag.' '.$this->no_pdf_message.'</p>': '';
 				
 
 				$output.='</ol>

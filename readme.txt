@@ -54,6 +54,9 @@ To customize its appearance, use your theme's CSS style.css file.
 
 == Changelog ==
 
+= 1.2.1 =
+- woops. A few quirks got left behind.
+
 = 1.2.0 =
 - New option: show a message when no pdf is returned.
 - New shortcode attribute "img" that can be used to display pdf thumbnails (suggested by Adam Lazzarato). Set the img to the desired width (ex: img="120" will display the thumbnail at the width of 120px).
