@@ -21,6 +21,7 @@ if (!class_exists('issuuAPI')) {
 			$this->cacheFolder= plugin_dir_path(__FILE__).'cache';
 			$this->issuuCacheFile = $this->cacheFolder . '/issuu.json';
 			$this->cacheDuration = ($key['cacheDuration']!='')? $key['cacheDuration']: $this->cacheDuration;
+			
 		}
 
 		public function getListing()
@@ -80,9 +81,11 @@ if (!class_exists('issuuAPI')) {
 		function cache_is_valid(){
 			// Check if we need to refresh the cache (see: http://php.net/manual/en/function.filemtime.php)
 			if(!is_file($this->issuuCacheFile)){
-			$file = fopen($this->issuuCacheFile, 'w') or die("can't create file");
-			fclose($file);
-			return false;}
+				chmod($this->cacheFolder, 0777);
+				$file = fopen($this->issuuCacheFile, 'w');// or die("can't create file");
+				fclose($file);
+				return false;
+			}
 			$filemtime = @filemtime($this->issuuCacheFile);
 			return ($filemtime && (time() - $filemtime < $this->cacheDuration));
 		}
