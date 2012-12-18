@@ -347,7 +347,7 @@ if (!class_exists('ap_issuupress')) {
 					<tr valign="top">
 						<th width="33%" scope="row"><?php _e('Message to display when no PDF file is returned:', $this->localizationDomain); ?></th>
 						<td>
-							<input name="no_pdf_message" type="text" id="no_pdf_message" size="12" value="<?php echo $this->options['no_pdf_message'] ;?>"/>
+							<input name="no_pdf_message" type="text" id="no_pdf_message" size="45" value="<?php echo $this->options['no_pdf_message'] ;?>"/>
 							
 						</td>
 					</tr>
