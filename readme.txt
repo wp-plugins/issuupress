@@ -50,9 +50,15 @@ To customize its appearance, use your theme's CSS style.css file.
 - **ctitle=""** : Title to print on top of the list of pdf files. Default: "Pick a PDF file to read"
 - **height="480"** : Controls the viewer 's height dimension. In pixels. Default: "480".
 - **bgcolor="FFFFFF"** : Controls the viewer background color. In hexadecimal. Default :"FFFFFF".
-
+- **img="false"** : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px).
 
 == Changelog ==
+
+= 1.2.0 =
+- New option: show a message when no pdf is returned.
+- New shortcode attribute "img" that can be used to display pdf thumbnails (suggested by Adam Lazzarato). Set the img to the desired width (ex: img="120" will display the thumbnail at the width of 120px).
+- Removed an incoherence that could make it that no pdf would be displayed if no tag was provided. Sorry about that.
+
 = 1.1.1. =
 - Fixed the tag not actually filtering anything (duh!).
 

@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.1.1
+Version: 1.2.0
 Author: Alexandre Plennevaux
 Author URI: http://www.pixeline.be
 */
@@ -70,6 +70,8 @@ if (!class_exists('ap_issuupress')) {
 			$this->apiKey = $this->options['ap_issuupress_apikey'];
 			$this->apiSecret = $this->options['ap_issuupress_apisecret'];
 			$this->cacheDuration = $this->options['ap_issuupress_cacheDuration'];
+			$this->no_pdf_message = $this->options['no_pdf_message'];
+
 
 			//Admin menu
 			add_action("admin_menu", array(&$this,"admin_menu_link"));
@@ -101,10 +103,11 @@ if (!class_exists('ap_issuupress')) {
 		 * @return array
 		 */
 		function getOptions() {
-			if (!$theOptions = get_option($this->optionsName)) {
-				$theOptions = array('ap_issuupress_apikey'=> '', 'ap_issuupress_apisecret' => '', 'ap_issuupress_cacheDuration'=>86400);
-				update_option($this->optionsName, $theOptions);
-
+			$theOptions = array('ap_issuupress_apikey'=> '', 'ap_issuupress_apisecret' => '', 'ap_issuupress_cacheDuration'=>86400,'no_pdf_message'=>'No PDF available, sorry!');
+			$storedOptions = get_option($this->optionsName);
+			if (count($storedOptions)!=count($theOptions)) {
+				$theOptions=  array_merge($theOptions,$storedOptions);
+				update_option($this->optionsName,$theOptions);
 			}
 			$this->options = $theOptions;
 			$this->cacheDuration = $this->options['ap_issuupress_cacheDuration'];
@@ -114,7 +117,8 @@ if (!class_exists('ap_issuupress')) {
 		function shortcode($atts){
 			ob_start();
 			if(!is_admin()){
-				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
+				$this->getOptions();
+				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','img'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
 
 				$this->filterByTag = $tag;
 
@@ -144,6 +148,7 @@ if (!class_exists('ap_issuupress')) {
 				// display viewer, send it options in array
 
 				if($viewer!=='no'){
+				
 					$output .= $this->issuuViewer(array('documentId'=> $docId, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
 				}
 
@@ -152,8 +157,9 @@ if (!class_exists('ap_issuupress')) {
 				$output .= '<h3>'.$ctitle.'</h3>';
 				$output .='<ol class="issuu-list">';
 				foreach($docs->_content as $d){
-
-					if((is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags))){
+					$count = 0;
+					if((is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags)) || (trim($this->filterByTag)=='')){
+						$count++;
 						$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
 						$dId = $d->document->documentId;
 						$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
@@ -164,15 +170,25 @@ if (!class_exists('ap_issuupress')) {
 							$doc_link = $issuu_link;
 							$link_target= 'target="_blank"';
 						}
-						$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'</a> <small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+						if($img !='false'){
+							$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a></li>';
+						}else
+						{
+							$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'</a> <small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+
+						}
+						
+
 
 
 					}
 				}
+				$output.= ($count===0)? '<p class="issuupress-no-pdf-message">'.$this->no_pdf_message.'</p>': '';
+				
 
 				$output.='</ol>
 			</div>';
-				$output .= '<img src="http://pixeline.be/pixeline-downloads-tracker.php?fn='.$this->pluginId.'&v='.$this->pluginVersion.'&uu='.$_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'" width="1" height="1"/>';
+
 				echo $output;
 
 			}
@@ -229,8 +245,8 @@ if (!class_exists('ap_issuupress')) {
 				// enqueue here
 				if(!is_admin()){
 					$pth_plugin_url = plugin_dir_url(__FILE__);
-					wp_enqueue_script('jquery');
-					wp_enqueue_script('pixeline_issuupress', $this->pluginUrl.'/'.$this->pluginId.'.js', array('jquery'));
+					//wp_enqueue_script('jquery');
+					//wp_enqueue_script('pixeline_issuupress', $this->pluginUrl.'/'.$this->pluginId.'.js', array('jquery'));
 					wp_enqueue_style('pixeline_issuupress', $this->pluginUrl.'/'.$this->pluginId.'-frontend.css');
 
 				}
@@ -281,6 +297,7 @@ if (!class_exists('ap_issuupress')) {
 				if (! wp_verify_nonce($_POST['_wpnonce'], 'ap_issuupress-update-options') ) die('Whoops! There was a problem with the data you posted. Please go back and try again.');
 				$this->options['ap_issuupress_apikey'] = $_POST['ap_issuupress_apikey'];
 				$this->options['ap_issuupress_apisecret'] = $_POST['ap_issuupress_apisecret'];
+				$this->options['no_pdf_message'] = $_POST['no_pdf_message'];
 				$this->options['ap_issuupress_cacheDuration'] = (int)$_POST['ap_issuupress_cacheDuration'];
 
 				if($_POST['ap_issuupress_refresh_now']==='1'){
@@ -328,6 +345,14 @@ if (!class_exists('ap_issuupress')) {
 					</tr>
 
 					<tr valign="top">
+						<th width="33%" scope="row"><?php _e('Message to display when no PDF file is returned:', $this->localizationDomain); ?></th>
+						<td>
+							<input name="no_pdf_message" type="text" id="no_pdf_message" size="12" value="<?php echo $this->options['no_pdf_message'] ;?>"/>
+							
+						</td>
+					</tr>
+
+					<tr valign="top">
 						<th width="33%" scope="row"><?php _e('Refresh cache every (in seconds):', $this->localizationDomain); ?></th>
 						<td>
 							<input name="ap_issuupress_cacheDuration" type="text" id="ap_issuupress_cacheDuration" size="12" value="<?php echo $this->options['ap_issuupress_cacheDuration'] ;?>"/>
@@ -369,6 +394,7 @@ if (!class_exists('ap_issuupress')) {
 	<li><strong>ctitle=""</strong> : Title to print on top of the list of pdf files. <em>Default: "Pick a PDF file to read"</em></li>
 	<li><strong>height="240"</strong> : Controls the viewer 's height dimension. In pixels. <em>Default: "240".</em></li>
 	<li><strong>bgcolor="FFFFFF"</strong> : Controls the viewer background color. In hexadecimal. <em>Default :"FFFFFF".</em></li>
+	<li><strong>img="120"</strong> : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px). <em>Default :"false".</em></li>
 </ul>
 
 </div>
