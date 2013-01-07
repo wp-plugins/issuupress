@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.2.1
+Version: 1.2.2
 Author: Alexandre Plennevaux
 Author URI: http://www.pixeline.be
 */
@@ -105,10 +105,17 @@ if (!class_exists('ap_issuupress')) {
 		function getOptions() {
 			$theOptions = array('ap_issuupress_apikey'=> '', 'ap_issuupress_apisecret' => '', 'ap_issuupress_cacheDuration'=>86400,'no_pdf_message'=>'No PDF available, sorry!');
 			$storedOptions = get_option($this->optionsName);
-			if (count($storedOptions)!=count($theOptions)) {
+
+			if (is_array($storedOptions) && count($storedOptions)!=count($theOptions)) {
+				// Update the options upon plugin updating.Useful if new options have been introduced.
 				$storedOptions=  array_merge($theOptions,$storedOptions);
 				update_option($this->optionsName,$storedOptions);
 			}
+			if(!is_array($storedOptions)){
+				// this happens on first installation.
+				$storedOptions = $theOptions;
+			}
+			
 			$this->options = $storedOptions;
 			$this->cacheDuration = $this->options['ap_issuupress_cacheDuration'];
 		}
