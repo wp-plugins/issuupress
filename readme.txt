@@ -53,6 +53,10 @@ To customize its appearance, use your theme's CSS style.css file.
 - **img="false"** : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px).
 
 == Changelog ==
+
+= 1.2.3 =
+- Fixed warnings appearing if no document was found.
+
 = 1.2.2 =
 - Annoying warning happening on some installations after updating the plugin. Hopefully this should sort it out.
 
