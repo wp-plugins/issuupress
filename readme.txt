@@ -54,6 +54,11 @@ To customize its appearance, use your theme's CSS style.css file.
 
 == Changelog ==
 
+= 1.2.4 =
+- Improved error reporting
+- Improved the Rebuild Cache process
+- Thanks to Adam Lazzarato for bug reporting and beta testing °-)
+
 = 1.2.3 =
 - Fixed warnings appearing if no document was found.
 

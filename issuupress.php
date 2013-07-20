@@ -3,7 +3,7 @@
 Plugin Name: issuuPress
 Plugin URI: http://www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.2.3
+Version: 1.2.4
 Author: Alexandre Plennevaux
 Author URI: http://pixeline.be
 Plugin template by Piers http://soderlind.no/archives/2010/03/04/wordpress-plugin-template/
@@ -71,22 +71,16 @@ if (!class_exists('ap_issuupress')) {
 			add_shortcode('issuupress', array($this, 'shortcode'));
 
 			add_filter('the_posts', array(&$this,'scripts_and_styles'));
-
-			//Actions
-			add_action("init", array(&$this,"ap_issuupress_init"));
 		}
 
-		function ap_issuupress_init(){
-		}
 
-		function listDocs(){
+		function listDocs($forceCache=false){
 
 			require_once('issuuAPI.php');
 
-			$issuuAPI = new issuuAPI(array('apiKey'=>$this->apiKey,'apiSecret'=>$this->apiSecret, 'cacheDuration'=>$this->cacheDuration));
-			$docs = $issuuAPI->getListing();
-
-			return $docs;
+			$issuuAPI = new issuuAPI(array('apiKey'=>$this->apiKey,'apiSecret'=>$this->apiSecret, 'cacheDuration'=>$this->cacheDuration, 'forceCache'=>$forceCache));
+			$result= $issuuAPI->getListing();
+			return $result;
 		}
 
 
@@ -99,7 +93,7 @@ if (!class_exists('ap_issuupress')) {
 			$storedOptions = get_option($this->optionsName);
 
 			if (is_array($storedOptions) && count($storedOptions)!=count($theOptions)) {
-				// Update the options upon plugin updating.Useful if new options have been introduced.
+				// Update the options upon plugin updating. Useful if new options have been introduced.
 				$storedOptions=  array_merge($theOptions,$storedOptions);
 				update_option($this->optionsName,$storedOptions);
 			}
@@ -121,88 +115,94 @@ if (!class_exists('ap_issuupress')) {
 
 				$this->filterByTag = $tag;
 
-				$docs = $this->listDocs();
+				$docs = $this->listDocs(false);
 
-				if($_GET['documentId'] != '') {
-					$docId = $_GET['documentId'];
-					$docTitle= $_GET['title'];
-				}else{
+				if(is_array($docs) && isset($docs['error'])){
+					echo '<div>'._("Issuu could not be reached, sorry").'</div>';
+				} else{
+					if($_GET['documentId'] != '') {
+						$docId = $_GET['documentId'];
+						$docTitle= $_GET['title'];
+					}else{
+
+						if(count($docs->_content)>0){
+							if($this->filterByTag !=''){
+								foreach($docs->_content as $d){
+									if(in_array($this->filterByTag, $d->document->tags)){
+										$docId =  $d->document->documentId;
+										$docTitle =  $d->document->title;
+										break;
+									}
+								}
+							}else{
+								$docId = $docs->_content[0]->document->documentId;
+								$docTitle = $docs->_content[0]->document->title;
+							}
+						}
+
+					}
+					$output = '<div id="issuupress">';
 
 					if(count($docs->_content)>0){
-						if($this->filterByTag !=''){
-							foreach($docs->_content as $d){
-								if(in_array($this->filterByTag, $d->document->tags)){
-									$docId =  $d->document->documentId;
-									$docTitle =  $d->document->title;
-									break;
+
+						// display viewer, send it options in array
+
+						if($viewer!=='no'){
+
+							$output .= $this->issuuViewer(array('documentId'=> $docId, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
+						}
+
+
+						// loop through the issuus files and display them.
+						$output .= '<h3>'.$ctitle.'</h3>';
+						$output .='<ol class="issuu-list">';
+						$count = 0;
+						foreach($docs->_content as $d){
+
+
+							$isInTags = (is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags));
+							$wantItAll = (trim($this->filterByTag)==='');
+
+							if($isInTags || $wantItAll){
+								//$output.=  "want it all = $wantItAll & isInTags=$isInTags";
+								//$output .= "tags =" .print_r($d->document->tags,true);
+
+								$count++;
+								$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
+								$dId = $d->document->documentId;
+								$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
+								$doc_link = add_query_arg( 'title', urlencode($d->document->title), $doc_link);
+								$doc_link.='#issuupress';
+								$selected = ($dId == $docId) ? 'class="issuu-selected"':'';
+								if($viewer==='no'){
+									$doc_link = $issuu_link;
+									$link_target= 'target="_blank"';
+								}
+								if($img !='false'){
+									$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+								}else
+								{
+									$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
+
 								}
 							}
-						}else{
-							$docId = $docs->_content[0]->document->documentId;
-							$docTitle = $docs->_content[0]->document->title;
 						}
-					}
-
-				}
-				$output = '<div id="issuupress">';
-
-				if(count($docs->_content)>0){
-
-					// display viewer, send it options in array
-
-					if($viewer!=='no'){
-
-						$output .= $this->issuuViewer(array('documentId'=> $docId, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
-					}
+						$output.= ($count<1)? '<p class="issuupress-no-pdf-message">'.$this->filterByTag.' '.$this->no_pdf_message.'</p>': '';
 
 
-					// loop through the issuus files and display them.
-					$output .= '<h3>'.$ctitle.'</h3>';
-					$output .='<ol class="issuu-list">';
-					$count = 0;
-					foreach($docs->_content as $d){
-
-
-						$isInTags = (is_array($d->document->tags) && in_array($this->filterByTag, $d->document->tags));
-						$wantItAll = (trim($this->filterByTag)==='');
-
-						if($isInTags || $wantItAll){
-							//$output.=  "want it all = $wantItAll & isInTags=$isInTags";
-							//$output .= "tags =" .print_r($d->document->tags,true);
-
-							$count++;
-							$issuu_link = 'http://issuu.com/'.$d->document->username.'/docs/'.$d->document->name.'#download';
-							$dId = $d->document->documentId;
-							$doc_link = add_query_arg( 'documentId', $dId, get_permalink() );
-							$doc_link = add_query_arg( 'title', urlencode($d->document->title), $doc_link);
-							$doc_link.='#issuupress';
-							$selected = ($dId == $docId) ? 'class="issuu-selected"':'';
-							if($viewer==='no'){
-								$doc_link = $issuu_link;
-								$link_target= 'target="_blank"';
-							}
-							if($img !='false'){
-								$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
-							}else
-							{
-								$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
-
-							}
-						}
-					}
-					$output.= ($count<1)? '<p class="issuupress-no-pdf-message">'.$this->filterByTag.' '.$this->no_pdf_message.'</p>': '';
-
-
-					$output.='</ol>
+						$output.='</ol>
 			</div>';
 
-					echo $output;
-				}
-				 else{
+						echo $output;
+					}
+					else{
 						// No Documents in the json file.
 						echo '<div id="issuupress">'._("No document found in your Issuu account").'</div>';
 
 					}
+				}
+
+
 
 			}
 			$output_string = ob_get_contents();
@@ -258,8 +258,6 @@ if (!class_exists('ap_issuupress')) {
 				// enqueue here
 				if(!is_admin()){
 					$pth_plugin_url = plugin_dir_url(__FILE__);
-					//wp_enqueue_script('jquery');
-					//wp_enqueue_script('pixeline_issuupress', $this->pluginUrl.'/'.$this->pluginId.'.js', array('jquery'));
 					wp_enqueue_style('pixeline_issuupress', $this->pluginUrl.'/'.$this->pluginId.'-frontend.css');
 
 				}
@@ -306,6 +304,7 @@ if (!class_exists('ap_issuupress')) {
 		 * Adds settings/options page
 		 */
 		function admin_options_page() {
+
 			if($_POST['ap_issuupress_save']){
 				if (! wp_verify_nonce($_POST['_wpnonce'], 'ap_issuupress-update-options') ) die('Whoops! There was a problem with the data you posted. Please go back and try again.');
 				$this->options['ap_issuupress_apikey'] = $_POST['ap_issuupress_apikey'];
@@ -314,21 +313,17 @@ if (!class_exists('ap_issuupress')) {
 				$this->options['ap_issuupress_cacheDuration'] = (int)$_POST['ap_issuupress_cacheDuration'];
 
 				if($_POST['ap_issuupress_refresh_now']==='1'){
-					require_once('issuuAPI.php');
-					$issuuAPI = new issuuAPI(array('apiKey'=>$this->apiKey,'apiSecret'=>$this->apiSecret, 'cacheDuration'=>$this->cacheDuration));
-					if (is_file($issuuAPI->issuuCacheFile)){
-						$deleteCache = @unlink($issuuAPI->issuuCacheFile);
-						echo ($deleteCache) ? '<div class="updated"><p>'._('Success! Cache file deleted.').'</p></div>': '<div class="updated"><p>'._('Error! Could not delete the cache file!'). '('.$issuuAPI->issuuCacheFile.')</p></div>';
-					}else{
-						echo '<div class="updated"><p>'._('No cache file found.').'</p></div>';
+
+					$docs = $this->listDocs(true);
+					if(is_array($docs) && isset($docs['error'])){
+						$refresh_mess = '<div class="updated"><p>'._('Error! Could not refresh the cache file : '). $docs['error']. '</p><p>(your cache file is here: '.$issuuAPI->issuuCacheFile.')</p></div>' ;
+					} else{
+						$refresh_mess = '<div class="updated"><p>'._('Success! Cache refreshed.').'</p></div>';
 					}
 
 				}
-
-
 				$this->saveAdminOptions();
-
-				echo '<div class="updated"><p>'._('Success! Your changes were sucessfully saved.').'</p></div>';
+				echo (empty($refresh_mess)) ? '<div class="updated"><p>'._('Success! Your changes were sucessfully saved.').'</p></div>': $refresh_mess;
 			}
 ?>
 			<div class="wrap">
