@@ -94,7 +94,7 @@ if (!class_exists('issuuAPI')) {
 		function cache_is_valid(){
 			// Check if we need to refresh the cache (see: http://php.net/manual/en/function.filemtime.php)
 			if(!is_file($this->issuuCacheFile)){
-				chmod($this->cacheFolder, 0777);
+				@chmod($this->cacheFolder, 0777);
 				$file = fopen($this->issuuCacheFile, 'w');// or die("can't create file");
 				fclose($file);
 				return false;

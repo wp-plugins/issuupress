@@ -53,6 +53,8 @@ To customize its appearance, use your theme's CSS style.css file.
 - **img="false"** : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px).
 
 == Changelog ==
+= 1.2.5 = 
+- removed causes for php notices.
 
 = 1.2.4 =
 - Improved error reporting
