@@ -3,7 +3,7 @@ Contributors: pixeline
 Donate link: http://goo.gl/7L2ua
 Tags: issuu,pdf,catalog,shortcode
 Requires at least: 2.9.2
-Tested up to: 3.4
+Tested up to: 4.1
 Stable tag: trunk
 
 Displays your Issuu-hosted catalog of PDF files in your wordpress posts/pages using a shortcode.
@@ -39,11 +39,10 @@ To customize its appearance, use your theme's CSS style.css file.
 5. Use the shortcode wherever you see fit. To customize its appearance, use your theme's CSS style.css file.
 
 = Example = 
-`[issuupress tag="" viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
+`[issuupress viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
 
 = Options =
 
-- **tag=""** :  If you want, you can restrict the list to only pdf with the provided tag. Default: ""
 - **viewer="mini"** : Possible values: "no","mini","presentation" or "window". Default: "mini".
 - **titlebar="false"** : Displays the PDF's titlebar. Possible values: "true", "false". Default: "false".
 - **vmode=""** : Displays pages next to each other, or underneath each other ("single"). Possible values: "single", "". Default: "".
@@ -53,6 +52,16 @@ To customize its appearance, use your theme's CSS style.css file.
 - **img="false"** : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px).
 
 == Changelog ==
+
+= 1.3.0 = 
+- Enhancement: added the option to only fetch public/private or both documents from your Issuu account.
+- Enhancement: added the option to set the display order.
+- Fixed "Notice: has_cap"
+- Fixed issues related to the cache file  not being writable
+- Fix: smarter automatic setup on plugin initial configuration
+- Fix: use "https" url instead of http to remove security warning on SSL websites.
+- Improvement: add "&debug" to the settings page url to display a Debug box with useful information (or simply click on the "View Debug information" link in the Settings screen.
+
 = 1.2.5 = 
 - removed causes for php notices.
 

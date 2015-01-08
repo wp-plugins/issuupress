@@ -2,8 +2,8 @@
 if (!class_exists('issuuAPI')) {
 	class issuuAPI {
 		// url to Issuu api
-		var $requestUrl = 'http://api.issuu.com/1_0';
-		var $uploadUrl = 'http://api.issuu.com/1_0';
+		var $requestUrl = 'https://api.issuu.com/1_0';
+		var $uploadUrl = 'https://api.issuu.com/1_0';
 
 		var $apiKey;
 		var $apiSecret;
@@ -11,9 +11,9 @@ if (!class_exists('issuuAPI')) {
 		var $cacheFolder;
 		var $cacheDuration = 3600; // in seconds
 		var $forceCache = false;
-
-
-
+		var $result_order = 'desc';
+		var $result_orderby = 'publishDate';
+		var $result_access = 'public';
 
 		function __construct($key)
 		{
@@ -22,15 +22,18 @@ if (!class_exists('issuuAPI')) {
 			$this->cacheFolder= plugin_dir_path(__FILE__).'cache';
 			$this->issuuCacheFile = $this->cacheFolder . '/issuu.json';
 			$this->cacheDuration = ($key['cacheDuration']!='')? $key['cacheDuration']: $this->cacheDuration;
-			$this->forceCache = ($key['forceCache']!='')? $key['forceCache']: $this->forceCache;
+			$this->forceCache = ($key['forceCache']!='')? $key['forceCache']: $this->forceCache;   
+			$this->result_order = ($key['result_order']!='')? $key['result_order']: $this->result_order;
+			$this->result_orderby = ($key['result_orderby']!='')? $key['result_orderby']: $this->result_orderby;
+			$this->result_access = ($key['result_access']!='')? $key['result_access']: $this->result_access;
 		}
 
 		public function getListing()
 		{
-			// see: http://issuu.com/services/api/issuu.document.list.html
+			// see documentation: http://issuu.com/services/api/issuu.document.list.html
 
-			if (($this->forceCache==true) || (!$this->cache_is_valid())){
-
+			if (($this->forceCache) || (!$this->cache_is_valid())){
+				//ini_set('max_execution_time', 120);
 				$apiKey = $this->apiKey;
 				$apiSecret = $this->apiSecret;
 
@@ -38,16 +41,21 @@ if (!class_exists('issuuAPI')) {
 					'format'=>'json',
 					'action'=>'issuu.documents.list',
 					'apiKey'=>$apiKey,
-					'documentSortBy'=>'publishDate',
+					'documentSortBy'=> $this->result_orderby, //'publishDate',
 					'documentStates'=>'A',
 					'pageSize'=>'30',
-					'resultOrder'=>'desc',
+					'resultOrder'=>$this->result_order,
 					'startIndex'=>'0',
-					'access'=>'public'
+					'access'=>$this->result_access
 				);
 
 				ksort($args);
-				$argumentsAsSignature = $argAsUrlParameters = '';
+/*
+echo '<pre>';
+print_r($args);
+exit;
+*/
+				$argAsSignature = $argAsUrlParameters = '';
 
 				foreach($args as $k=>$v){
 					$argAsSignature .=$k.$v;
@@ -61,16 +69,15 @@ if (!class_exists('issuuAPI')) {
 				/*
 					check if issuu returns an error.
 				*/
-
+				if( is_wp_error($response) || isset($response->errors) || $response == null) {
+					return array('error'=>"Could not connect to issuu.");
+				}
 				$json=json_decode($response['body'],true);
 				$error = (isset($json["rsp"]["_content"]["error"]));
 
 				if($error){
 					$error = $json["rsp"]["_content"]["error"];
 					return array('error'=>'issuu API sent an error: '.$error["code"].' : '.$error["message"] );
-				}
-				if( is_wp_error($response) || isset($response->errors) || $response == null || $error!='') {
-					return array('error'=>"Could not connect to issuu.");
 				}
 				file_put_contents($this->issuuCacheFile, $response['body']);
 
@@ -97,6 +104,7 @@ if (!class_exists('issuuAPI')) {
 				@chmod($this->cacheFolder, 0777);
 				$file = fopen($this->issuuCacheFile, 'w');// or die("can't create file");
 				fclose($file);
+				@chmod($this->issuuCacheFile, 0777);
 				return false;
 			}
 			$filemtime = @filemtime($this->issuuCacheFile);
