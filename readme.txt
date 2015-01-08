@@ -26,7 +26,7 @@ Thanks,
 Simply put the `[issuupress]` shortcode where you would like the catalog to be. Add attributes to customize it.
 
 Example: 
-`[issuupress tag="" viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
+`[issuupress viewer="mini" titlebar="false" vmode="" ctitle="Pick a PDF file to read" height="480" bgcolor="FFFFFF"]` 
 
 To customize its appearance, use your theme's CSS style.css file.
 
@@ -55,6 +55,7 @@ To customize its appearance, use your theme's CSS style.css file.
 
 = 1.3.0 = 
 - Enhancement: added the option to only fetch public/private or both documents from your Issuu account.
+- removed Tag support, since Issuu removed it.
 - Enhancement: added the option to set the display order.
 - Fixed "Notice: has_cap"
 - Fixed issues related to the cache file  not being writable
