@@ -99,3 +99,4 @@ Initial release.
 
 == Screenshots ==
 1. Mockup of the Issuu viewer with the list of pdfs underneath, fetched via the Issuu API.
+2. The Settings screen.
