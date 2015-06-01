@@ -3,7 +3,7 @@ Contributors: pixeline
 Donate link: http://goo.gl/7L2ua
 Tags: issuu,pdf,catalog,shortcode
 Requires at least: 2.9.2
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: trunk
 
 Displays your Issuu-hosted catalog of PDF files in your wordpress posts/pages using a shortcode.
@@ -52,6 +52,11 @@ To customize its appearance, use your theme's CSS style.css file.
 - **img="false"** : Set this to a number will display the thumbnail of each pdf at the provided width (ex: img="120" will display the thumbnail at the width of 120px).
 
 == Changelog ==
+
+
+= 1.3.1 = 
+- Fixed issue if your website is using SSL (https protocol)
+- Tested against wordpress 4.2
 
 = 1.3.0 = 
 - Enhancement: added the option to only fetch public/private or both documents from your Issuu account.

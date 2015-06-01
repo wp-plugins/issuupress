@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name: issuuPress
-Plugin URI: http://www.pixeline.be
+Plugin URI: //www.pixeline.be
 Description: Displays your Issuu catalog of PDF files in your wordpress posts/pages using a shortcode.
-Version: 1.3.0
+Version: 1.3.1
 Author: Alexandre Plennevaux
-Author URI: http://pixeline.be
-Plugin template by Piers http://soderlind.no/archives/2010/03/04/wordpress-plugin-template/
+Author URI: //pixeline.be
+Plugin template by Piers //soderlind.no/archives/2010/03/04/wordpress-plugin-template/
 */
 
 if (!class_exists('ap_issuupress')) {
@@ -62,7 +62,7 @@ if (!class_exists('ap_issuupress')) {
 			$this->cacheFolder= plugin_dir_path(__FILE__).'cache';
 			$this->issuuCacheFile = $this->cacheFolder . '/issuu.json';
 			// Issuu gives the following parameters to control the order
-			// see: http://developers.issuu.com/api/issuu.document.list.html#responseparameters
+			// see: //developers.issuu.com/api/issuu.document.list.html#responseparameters
 			$this->issue_orderby_options = array(
 				'username' => 'Owner of document',
 				'name' => 'Name of document',
@@ -189,7 +189,7 @@ if (!class_exists('ap_issuupress')) {
 			ob_start();
 			if(!is_admin()){
 
-				extract(shortcode_atts(array('tag'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','img'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
+				extract(shortcode_atts(array('folder'=>'', 'viewer'=>'mini','vmode'=>'','titlebar'=>'false','img'=>'false','height'=>'240', 'bgcolor'=>'FFFFFF','ctitle'=>'Pick a PDF file to read'), $atts));
 
 				$this->filterByTag = $tag;
 
@@ -231,7 +231,7 @@ if (!class_exists('ap_issuupress')) {
 
 						if($viewer!=='no'){
 
-							$output .= $this->issuuViewer(array('documentId'=> $docId, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
+							$output .= $this->issuuViewer(array('documentId'=> $docId, 'folder'=>$folder, 'viewer'=>$viewer, 'title'=>$docTitle, 'height'=>$height, 'bgcolor'=>$bgcolor, 'titlebar'=>$titlebar, 'vmode'=>$vmode ));
 						}
 
 
@@ -262,7 +262,7 @@ if (!class_exists('ap_issuupress')) {
 									$link_target= 'target="_blank"';
 								}
 								if($img !='false'){
-									$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="http://image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
+									$output .= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'><img src="//image.issuu.com/'.$dId.'/jpg/page_1_thumb_medium.jpg" width="'.$img.'">'.$d->document->title.'</a><small>'.$this->formatIssuuDate($d->document->publishDate).'</small></li>';
 								}else
 								{
 									$output.= '<li '.$selected.'><a class="issuu-view" href="'.$doc_link.'" '.$link_target.'>'.$d->document->title.'<small>'.$this->formatIssuuDate($d->document->publishDate).'</small></a> </li>';
@@ -310,11 +310,11 @@ if (!class_exists('ap_issuupress')) {
 			$output= '<h3>'.$options['title'].'</h3>
 			<div id="issuuViewer">
 				<object style="width:100%;height:'.$options['height'].'px" >
-				<param name="movie" value="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf?mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;titleBarEnabled='.$options['titlebar'].'&amp;documentId='.$options['documentId'].'" />
+				<param name="movie" value="//static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf?mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;titleBarEnabled='.$options['titlebar'].'&amp;documentId='.$options['documentId'].'" />
 				<param name="allowfullscreen" value="true"/>
 				<param name="menu" value="false"/>
 				<param name="wmode" value="transparent"/>
-				<embed src="http://static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;documentId='.$options['documentId'].'&amp;titleBarEnabled='.$options['titlebar'].'" />
+				<embed src="//static.issuu.com/webembed/viewers/style1/v2/IssuuReader.swf" type="application/x-shockwave-flash" allowfullscreen="true" menu="false" wmode="transparent" style="width:100%;height:'.$options['height'].'px" flashvars="mode='.$options['mode'].'&amp;backgroundColor=%23'.$options['bgcolor'].'&amp;viewMode='.$options['vmode'].'&amp;embedBackground=%23'.$options['bgcolor'].'&amp;documentId='.$options['documentId'].'&amp;titleBarEnabled='.$options['titlebar'].'" />
 				</object>
 				</div>';
 
@@ -419,8 +419,8 @@ if (!class_exists('ap_issuupress')) {
 ?>
 			<div class="wrap">
 			<h1><?php _e('IssuuPress Settings', $this->localizationDomain);?></h1>
-			<p><?php _e('by <a href="http://www.pixeline.be" target="_blank" class="external">pixeline</a>', $this->localizationDomain); ?></p>
-			<p style="font-weight:bold;"><?php _e('If you like this plugin, please <a href="http://wordpress.org/extend/plugins/issuupress/" target="_blank">give it a good rating</a> on the Wordpress Plugins repository, and if you make any money out of it, <a title="Paypal donation page" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=J9X5B6JUVPBHN&lc=US&item_name=pixeline%20%2d%20Wordpress%20plugin&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHostedGuest">send a few coins over to me</a>!', $this->localizationDomain); ?></p>
+			<p><?php _e('by <a href="//www.pixeline.be" target="_blank" class="external">pixeline</a>', $this->localizationDomain); ?></p>
+			<p style="font-weight:bold;"><?php _e('If you like this plugin, please <a href="//wordpress.org/extend/plugins/issuupress/" target="_blank">give it a good rating</a> on the Wordpress Plugins repository, and if you make any money out of it, <a title="Paypal donation page" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=J9X5B6JUVPBHN&lc=US&item_name=pixeline%20%2d%20Wordpress%20plugin&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHostedGuest">send a few coins over to me</a>!', $this->localizationDomain); ?></p>
 
 			<h2 style="border-top:1px solid #999;padding-top:1em;"><?php _e('Settings', $this->localizationDomain);?></h2>
 <p><a href="options-general.php?page=issuupress.php&debug"><?php _e('Show Debug information', $this->localizationDomain); ?></a></p>
@@ -431,7 +431,7 @@ if (!class_exists('ap_issuupress')) {
 				touch($this->issuuCacheFile);
 			}?>
 
-			<p><?php _e('In order to fetch the list of your documents from your Issuu account, you need to provide your API credentials. Get them <a href="http://issuu.com/services/api/" target="_blank">here</a>.', $this->localizationDomain); ?>
+			<p><?php _e('In order to fetch the list of your documents from your Issuu account, you need to provide your API credentials. Get them <a href="//issuu.com/services/api/" target="_blank">here</a>.', $this->localizationDomain); ?>
 			</p>
 			<form method="post" id="ap_issuupress_options">
 			<?php wp_nonce_field('ap_issuupress-update-options'); ?>
@@ -565,7 +565,7 @@ if (isset($_GET['ap_issuupress_javascript'])) {
 	echo<<<ENDJS
 /**
 * @desc issuuPress
-* @author Alexandre Plennevaux - http://www.pixeline.be
+* @author Alexandre Plennevaux - //www.pixeline.be
 */
 
 jQuery(document).ready(function(){
@@ -602,4 +602,3 @@ ENDJS;
 		$ap_issuupress_var = new ap_issuupress();
 	}
 }
-?>
